@@ -37,7 +37,10 @@ func TestGetEntry(t *testing.T) {
 	assert.NoError(createErr)
 	assert.NotEmpty(createdEntry)
 
-	entries, err := testQueries.GetEntry(context.Background(), GetEntryParams{AccountID: account1.ID, Limit: 1})
+	entries, err := testQueries.GetAccountEntries(context.Background(), GetAccountEntriesParams{
+		AccountID: account1.ID,
+		Limit:     1,
+	})
 
 	assert.NoError(err)
 	assert.NotEmpty(entries)

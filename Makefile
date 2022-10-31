@@ -18,5 +18,8 @@ postgres:
 
 sqlc:
 	sqlc generate
+
+resetDB:
+	make migratedown && make migrateup
 	
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc test
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc test resetDB

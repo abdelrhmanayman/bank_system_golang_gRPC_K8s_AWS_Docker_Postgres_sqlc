@@ -4,7 +4,7 @@ INSERT INTO entries (
     amount
 ) VALUES ($1, $2) RETURNING *;
 
--- name: GetEntry :many
+-- name: GetAccountEntries :many
 SELECT * FROM entries
 WHERE account_id = $1 LIMIT $2;
 
