@@ -89,9 +89,9 @@ func TestUpdateAccount(t *testing.T) {
 		Balance: updatedBalanceValue,
 	}
 
-	balance, err := testQueries.UpdateAccount(context.Background(), updateArgs)
+	updateAccount, err := testQueries.UpdateAccount(context.Background(), updateArgs)
 
 	assert.NoError(err)
-	assert.NotEmpty(balance)
-	assert.Equal(balance, updatedBalanceValue)
+	assert.NotEmpty(updateAccount)
+	assert.Equal(updateAccount.Balance, updatedBalanceValue)
 }
