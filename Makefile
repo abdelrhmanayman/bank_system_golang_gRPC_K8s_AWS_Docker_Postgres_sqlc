@@ -21,5 +21,11 @@ sqlc:
 
 resetDB:
 	make migratedown && make migrateup
+
+server:
+	go run index.go
+
+serverDev:
+	nodemon --exec go run index.go --signal SIGTERM
 	
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc test resetDB
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc test resetDB server serverDev
