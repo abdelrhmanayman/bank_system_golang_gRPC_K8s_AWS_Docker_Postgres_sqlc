@@ -3,6 +3,7 @@ package main
 import (
 	"banksystem/api"
 	db "banksystem/db/sqlc"
+	"banksystem/util"
 	"database/sql"
 	"log"
 
@@ -15,17 +16,18 @@ const (
 )
 
 func main() {
-	dbConn, err := sql.Open(dbDriver, dataSourceName)
+	appConfig, err := util.LoadConfig()
+
+	dbConn, err := sql.Open(appConfig.DbDriver, appConfig.DbSourceName)
 
 	if err != nil {
-
 		log.Fatal("Can not open database connection", err)
 	}
 
 	store := db.NewStore(dbConn)
 	server := api.SetupRoutes(store)
 
-	err = server.StartServer(":8080")
+	err = server.StartServer(":" + appConfig.Port)
 
 	if err != nil {
 		log.Fatal("Can't start the server")

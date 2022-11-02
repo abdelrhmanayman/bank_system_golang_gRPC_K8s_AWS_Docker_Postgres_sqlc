@@ -7,19 +7,24 @@ import (
 	"fmt"
 )
 
-type Store struct {
+type Store interface {
+	Querier
+	ExecTransferTx(ctx context.Context, args TransferTxParams) (TransferTxResults, error)
+}
+
+type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
-func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
+func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 
 	// return error if transaction can't begin
@@ -84,26 +89,11 @@ func addMoney(
 	return
 }
 
-func (store *Store) ExecTransferTx(ctx context.Context, args TransferTxParams) (TransferTxResults, error) {
+func (store *SQLStore) ExecTransferTx(ctx context.Context, args TransferTxParams) (TransferTxResults, error) {
 	var result TransferTxResults
 
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
-		// fromAccount, fromAccountGetError := q.GetAccountForUpdate(ctx, args.FromAccountId)
-
-		// if fromAccountGetError != nil {
-		// 	return fromAccountGetError
-		// }
-
-		// toAccount, toAccountGetError := q.GetAccountForUpdate(ctx, args.ToAccountId)
-
-		// if toAccountGetError != nil {
-		// 	return toAccountGetError
-		// }
-
-		// if balanceDiff := (fromAccount.Balance - args.Amount); balanceDiff < 0 {
-		// 	return errors.New("Insufficient balance to make the transfer")
-		// }
 
 		if args.FromAccountId < args.ToAccountId {
 			result.FromAccount, result.ToAccount, err = addMoney(q, ctx, args.FromAccountId, -args.Amount, args.ToAccountId, args.Amount)

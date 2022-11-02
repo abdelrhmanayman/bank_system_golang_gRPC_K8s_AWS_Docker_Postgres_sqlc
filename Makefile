@@ -27,5 +27,8 @@ server:
 
 serverDev:
 	nodemon --exec go run index.go --signal SIGTERM
+
+mockDB: 
+	mockgen -package mockdb -destination db/mock/store.go banksystem/db/sqlc Store
 	
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc test resetDB server serverDev
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc test resetDB server serverDev mockDB
