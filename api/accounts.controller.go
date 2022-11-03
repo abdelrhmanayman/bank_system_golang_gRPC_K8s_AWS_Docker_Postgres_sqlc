@@ -39,7 +39,7 @@ func (server *Server) CreateAccountController(ctx *gin.Context) {
 }
 
 type getAccountReq struct {
-	ID int64 `uri:"ID" binding:"required,min=0"`
+	ID int64 `uri:"ID" binding:"required,min=1"`
 }
 
 func (server *Server) GetAccountController(ctx *gin.Context) {
@@ -59,7 +59,7 @@ func (server *Server) GetAccountController(ctx *gin.Context) {
 			ctx.JSON(http.StatusNotFound, ErrorResponse(err))
 			return
 		}
-		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
 	}
 
