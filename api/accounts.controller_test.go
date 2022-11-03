@@ -8,7 +8,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -105,7 +105,7 @@ func createDummyAccount() db.Account {
 func matchAccountBodyCheck(t *testing.T, account db.Account, body *bytes.Buffer) {
 	var resultAccount db.Account
 
-	data, err := ioutil.ReadAll(body)
+	data, err := io.ReadAll(body)
 	assert.NoError(t, err)
 
 	err = json.Unmarshal(data, &resultAccount)
