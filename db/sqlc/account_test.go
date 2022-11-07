@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func CreateAccountTestArgs() CreateAccountParams {
+func CreateAccountTestArgs(existingOwnerUsername string) CreateAccountParams {
 	return CreateAccountParams{
-		Owner:    util.CreateRandomOwner(),
+		Owner:    existingOwnerUsername,
 		Balance:  util.CreateRandomBalance(),
 		Currency: util.CreateRandomCurrency(),
 	}
@@ -22,7 +22,8 @@ func CreateRandomAccount(accountArgs CreateAccountParams) (Account, error) {
 
 func TestCreateAccount(t *testing.T) {
 	assert := assert.New(t)
-	accountArgs := CreateAccountTestArgs()
+	user := createUserTest(t)
+	accountArgs := CreateAccountTestArgs(user.Username)
 	account, err := CreateRandomAccount(accountArgs)
 
 	assert.NoError(err)
@@ -34,7 +35,8 @@ func TestCreateAccount(t *testing.T) {
 
 func TestGetAccount(t *testing.T) {
 	assert := assert.New(t)
-	accountArgs := CreateAccountTestArgs()
+	user := createUserTest(t)
+	accountArgs := CreateAccountTestArgs(user.Username)
 	randomAccount, creationError := CreateRandomAccount(accountArgs)
 
 	assert.NoError(creationError)
@@ -65,7 +67,8 @@ func TestListAccounts(t *testing.T) {
 
 func TestDeleteAccount(t *testing.T) {
 	assert := assert.New(t)
-	accountArgs := CreateAccountTestArgs()
+	user := createUserTest(t)
+	accountArgs := CreateAccountTestArgs(user.Username)
 	randomAccount, creationError := CreateRandomAccount(accountArgs)
 
 	assert.NoError(creationError)
@@ -77,7 +80,8 @@ func TestDeleteAccount(t *testing.T) {
 
 func TestUpdateAccount(t *testing.T) {
 	assert := assert.New(t)
-	accountArgs := CreateAccountTestArgs()
+	user := createUserTest(t)
+	accountArgs := CreateAccountTestArgs(user.Username)
 	randomAccount, creationError := CreateRandomAccount(accountArgs)
 
 	assert.NoError(creationError)

@@ -17,19 +17,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type accountTestCase struct {
+	name              string
+	id                int64
+	testStubs         func(store *mockdb.MockStore)
+	checkTestResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+}
+
 func TestAccountController(t *testing.T) {
 	assert := assert.New(t)
 	account := createDummyAccount()
 
-	testCases := []struct {
-		name              string
-		accountID         int64
-		testStubs         func(store *mockdb.MockStore)
-		checkTestResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
-	}{
+	accountTestCases := []accountTestCase{
 		{
-			name:      "OK",
-			accountID: account.ID,
+			name: "OK",
+			id:   account.ID,
 			testStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), account.ID).Times(1).Return(account, nil)
 			},
@@ -39,8 +41,8 @@ func TestAccountController(t *testing.T) {
 			},
 		},
 		{
-			name:      "NotFound",
-			accountID: account.ID,
+			name: "NotFound",
+			id:   account.ID,
 			testStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), account.ID).Times(1).Return(db.Account{}, sql.ErrNoRows)
 			},
@@ -49,8 +51,8 @@ func TestAccountController(t *testing.T) {
 			},
 		},
 		{
-			name:      "BadRequest",
-			accountID: 0,
+			name: "BadRequest",
+			id:   0,
 			testStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), 0).Times(0)
 			},
@@ -59,8 +61,8 @@ func TestAccountController(t *testing.T) {
 			},
 		},
 		{
-			name:      "InternalServerError",
-			accountID: account.ID,
+			name: "InternalServerError",
+			id:   account.ID,
 			testStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), account.ID).Times(1).Return(db.Account{}, sql.ErrConnDone)
 			},
@@ -70,23 +72,23 @@ func TestAccountController(t *testing.T) {
 		},
 	}
 
-	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
+	for _, accountTestCase := range accountTestCases {
+		t.Run(accountTestCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 
 			store := mockdb.NewMockStore(ctrl)
 
 			server := SetupRoutes(store)
 			recorder := httptest.NewRecorder()
-			testCase.testStubs(store)
+			accountTestCase.testStubs(store)
 
-			url := fmt.Sprintf("/accounts/%d", testCase.accountID)
+			url := fmt.Sprintf("/accounts/%d", accountTestCase.id)
 
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			assert.NoError(err)
 
 			server.router.ServeHTTP(recorder, request)
-			testCase.checkTestResponse(t, recorder)
+			accountTestCase.checkTestResponse(t, recorder)
 
 		})
 	}

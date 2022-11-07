@@ -19,8 +19,11 @@ func createRandomTransferData(from_account, to_account int64) CreateTransferPara
 func createTwoTestAccounts(t *testing.T) (Account, Account) {
 	assert := assert.New(t)
 
-	accountOneData := CreateAccountTestArgs()
-	accountTwoData := CreateAccountTestArgs()
+	user1 := createUserTest(t)
+	accountOneData := CreateAccountTestArgs(user1.Username)
+
+	user2 := createUserTest(t)
+	accountTwoData := CreateAccountTestArgs(user2.Username)
 
 	account1, err1 := CreateRandomAccount(accountOneData)
 	account2, err2 := CreateRandomAccount(accountTwoData)

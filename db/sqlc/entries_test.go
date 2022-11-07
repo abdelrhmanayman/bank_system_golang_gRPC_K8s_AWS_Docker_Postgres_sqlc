@@ -11,7 +11,8 @@ import (
 func TestCreateEntry(t *testing.T) {
 	assert := assert.New(t)
 
-	accountOneData := CreateAccountTestArgs()
+	user := createUserTest(t)
+	accountOneData := CreateAccountTestArgs(user.Username)
 	account1, err1 := CreateRandomAccount(accountOneData)
 
 	assert.NoError(err1)
@@ -26,7 +27,8 @@ func TestCreateEntry(t *testing.T) {
 func TestGetEntry(t *testing.T) {
 	assert := assert.New(t)
 
-	accountOneData := CreateAccountTestArgs()
+	user := createUserTest(t)
+	accountOneData := CreateAccountTestArgs(user.Username)
 	account1, err1 := CreateRandomAccount(accountOneData)
 
 	assert.NoError(err1)
@@ -51,7 +53,8 @@ func TestGetEntry(t *testing.T) {
 func TestDeleteEntry(t *testing.T) {
 	assert := assert.New(t)
 
-	accountOneData := CreateAccountTestArgs()
+	user := createUserTest(t)
+	accountOneData := CreateAccountTestArgs(user.Username)
 	account1, err1 := CreateRandomAccount(accountOneData)
 
 	assert.NoError(err1)

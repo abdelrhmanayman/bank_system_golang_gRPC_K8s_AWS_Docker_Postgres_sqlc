@@ -29,6 +29,9 @@ func SetupRoutes(store db.Store) *Server {
 	// Transfers Routers
 	router.POST("/transfers", server.CreateTransferController)
 
+	//Users Routers
+	router.POST("/users", server.CreateUserController)
+
 	server.router = router
 	return server
 

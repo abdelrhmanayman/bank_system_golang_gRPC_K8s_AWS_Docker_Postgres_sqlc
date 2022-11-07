@@ -19,8 +19,11 @@ func TestCreateTransferTx(t *testing.T) {
 	numberOfTestTransactions := 10
 	testAmount := int64(200)
 
-	account1Args := CreateAccountTestArgs()
-	account2Args := CreateAccountTestArgs()
+	user1 := createUserTest(t)
+	account1Args := CreateAccountTestArgs(user1.Username)
+
+	user2 := createUserTest(t)
+	account2Args := CreateAccountTestArgs(user2.Username)
 
 	account1, _ := CreateRandomAccount(account1Args)
 	account2, _ := CreateRandomAccount(account2Args)
@@ -93,8 +96,11 @@ func TestCreateTransferDeadlockTx(t *testing.T) {
 	numberOfTestTransactions := 10
 	testAmount := int64(200)
 
-	account1Args := CreateAccountTestArgs()
-	account2Args := CreateAccountTestArgs()
+	user1 := createUserTest(t)
+	account1Args := CreateAccountTestArgs(user1.Username)
+
+	user2 := createUserTest(t)
+	account2Args := CreateAccountTestArgs(user2.Username)
 
 	account1, _ := CreateRandomAccount(account1Args)
 	account2, _ := CreateRandomAccount(account2Args)

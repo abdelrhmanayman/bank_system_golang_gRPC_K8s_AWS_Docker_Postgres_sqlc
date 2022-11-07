@@ -3,9 +3,11 @@ package api
 import (
 	db "banksystem/db/sqlc"
 	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
 
 type createAccountRequest struct {
@@ -31,6 +33,13 @@ func (server *Server) CreateAccountController(ctx *gin.Context) {
 	account, err := server.store.CreateAccount(ctx, accountArg)
 
 	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			switch err.Code.Name() {
+			case "foreign_key_violation", "unique_violation":
+				ctx.JSON(http.StatusForbidden, ErrorResponse(errors.New("forbidden")))
+				return
+			}
+		}
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
 	}
