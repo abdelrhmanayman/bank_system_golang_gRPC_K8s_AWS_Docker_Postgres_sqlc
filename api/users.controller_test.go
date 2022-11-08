@@ -7,9 +7,11 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -33,16 +35,53 @@ func createDummyUser() CreateUserRequest {
 	}
 }
 
+type createUserMatcher struct {
+	password string
+	userArgs db.CreateUserParams
+}
+
+func (userMatcher createUserMatcher) Matches(x interface{}) bool {
+	userArgs, ok := x.(db.CreateUserParams)
+
+	if !ok {
+		return false
+	}
+
+	isPasswordsMatches := util.CompareHashedPasswords(userMatcher.password, userArgs.HashedPwd)
+
+	if !isPasswordsMatches {
+		return false
+	}
+
+	userMatcher.userArgs.HashedPwd = userArgs.HashedPwd
+
+	return reflect.DeepEqual(userMatcher.userArgs, userArgs)
+}
+
+func (userMatcher createUserMatcher) String() string {
+	return fmt.Sprintf("user with username: %s is matched successfully", userMatcher.userArgs.Username)
+}
+
+func matchCreateUserArgs(args db.CreateUserParams, password string) gomock.Matcher {
+	return createUserMatcher{
+		password: password,
+		userArgs: args,
+	}
+}
+
 func TestCreateUserControllerTest(t *testing.T) {
 	assert := assert.New(t)
 	dummyUser := createDummyUser()
-
+	createUserArgs := db.CreateUserParams{
+		Username: dummyUser.Username,
+		Email:    dummyUser.Email,
+	}
 	testCases := []userTestCase{
 		{
 			name:    "OK",
 			payload: dummyUser,
 			testStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Times(1).Return(db.User{
+				store.EXPECT().CreateUser(gomock.Any(), matchCreateUserArgs(createUserArgs, dummyUser.Password)).Times(1).Return(db.User{
 					Username: dummyUser.Username,
 					Email:    dummyUser.Email,
 				}, nil)
@@ -85,7 +124,6 @@ func TestCreateUserControllerTest(t *testing.T) {
 				Email:    "sdfsadf",
 			},
 			testStubs: func(store *mockdb.MockStore) {
-
 				store.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Times(0)
 			},
 			checkTestResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
