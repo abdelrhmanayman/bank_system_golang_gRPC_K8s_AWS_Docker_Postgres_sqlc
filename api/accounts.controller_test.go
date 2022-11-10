@@ -78,7 +78,7 @@ func TestAccountController(t *testing.T) {
 
 			store := mockdb.NewMockStore(ctrl)
 
-			server := SetupRoutes(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			accountTestCase.testStubs(store)
 

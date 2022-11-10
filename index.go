@@ -10,13 +10,12 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const (
-	dbDriver       = "postgres"
-	dataSourceName = "postgresql://root:secret@localhost:5432/bank_db?sslmode=disable"
-)
-
 func main() {
 	appConfig, err := util.LoadConfig()
+
+	if err != nil {
+		log.Fatal("Can not load application configs", err)
+	}
 
 	dbConn, err := sql.Open(appConfig.DbDriver, appConfig.DbSourceName)
 
@@ -25,7 +24,11 @@ func main() {
 	}
 
 	store := db.NewStore(dbConn)
-	server := api.SetupRoutes(store)
+	server, err := api.SetupRoutes(appConfig, store)
+
+	if err != nil {
+		log.Fatal("Can not setup routes", err)
+	}
 
 	err = server.StartServer(":" + appConfig.Port)
 

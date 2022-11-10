@@ -136,7 +136,7 @@ func TestCreateUserControllerTest(t *testing.T) {
 		ctrl := gomock.NewController(t)
 
 		store := mockdb.NewMockStore(ctrl)
-		server := SetupRoutes(store)
+		server := newTestServer(t, store)
 		recorder := httptest.NewRecorder()
 
 		testCase.testStubs(store)
