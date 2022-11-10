@@ -98,7 +98,7 @@ func TestLoginController(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		store := mockdb.NewMockStore(ctrl)
 
-		server := newTestServer(t, store)
+		server, _ := newTestServer(t, store)
 		recorder := httptest.NewRecorder()
 
 		testCase.testStubs(store)

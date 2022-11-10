@@ -3,6 +3,7 @@ package api
 import (
 	mockdb "banksystem/db/mock"
 	db "banksystem/db/sqlc"
+	"banksystem/token"
 	"banksystem/util"
 	"bytes"
 	"database/sql"
@@ -12,6 +13,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -27,6 +29,16 @@ type accountTestCase struct {
 func TestAccountController(t *testing.T) {
 	assert := assert.New(t)
 	account := createDummyAccount()
+	ctrl := gomock.NewController(t)
+
+	store := mockdb.NewMockStore(ctrl)
+
+	server, symmetricKey := newTestServer(t, store)
+	tMaker, err := token.CreateNewPasetoMaker([]byte(symmetricKey))
+	assert.NoError(err)
+
+	token, _, err := tMaker.CreateToken(util.CreateRandomOwner(), time.Hour)
+	assert.NoError(err)
 
 	accountTestCases := []accountTestCase{
 		{
@@ -74,17 +86,13 @@ func TestAccountController(t *testing.T) {
 
 	for _, accountTestCase := range accountTestCases {
 		t.Run(accountTestCase.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-
-			store := mockdb.NewMockStore(ctrl)
-
-			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			accountTestCase.testStubs(store)
 
 			url := fmt.Sprintf("/accounts/%d", accountTestCase.id)
 
 			request, err := http.NewRequest(http.MethodGet, url, nil)
+			request.Header.Set("authorization", fmt.Sprintf("Bearer %v", token))
 			assert.NoError(err)
 
 			server.router.ServeHTTP(recorder, request)

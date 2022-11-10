@@ -11,16 +11,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func newTestServer(t *testing.T, store db.Store) *Server {
+func newTestServer(t *testing.T, store db.Store) (*Server, string) {
+	symmetricKey := util.GenerateRandomString(32)
 	config := util.Config{
-		SymmetricKey:  util.GenerateRandomString(32),
+		SymmetricKey:  symmetricKey,
 		TokenDuration: time.Minute,
 	}
 
 	server, err := SetupRoutes(config, store)
 	assert.NoError(t, err)
 
-	return server
+	return server, symmetricKey
 }
 
 func TestMain(m *testing.M) {
