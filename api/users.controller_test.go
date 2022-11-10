@@ -3,6 +3,7 @@ package api
 import (
 	mockdb "banksystem/db/mock"
 	db "banksystem/db/sqlc"
+	"banksystem/token"
 	"banksystem/util"
 	"bytes"
 	"database/sql"
@@ -13,6 +14,7 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/lib/pq"
@@ -76,6 +78,17 @@ func TestCreateUserControllerTest(t *testing.T) {
 		Username: dummyUser.Username,
 		Email:    dummyUser.Email,
 	}
+
+	ctrl := gomock.NewController(t)
+
+	store := mockdb.NewMockStore(ctrl)
+	server, symmetricKey := newTestServer(t, store)
+
+	tMaker, err := token.CreateNewPasetoMaker([]byte(symmetricKey))
+	assert.NoError(err)
+
+	token, _, err := tMaker.CreateToken(util.CreateRandomOwner(), time.Hour)
+	assert.NoError(err)
 	testCases := []userTestCase{
 		{
 			name:    "OK",
@@ -133,10 +146,6 @@ func TestCreateUserControllerTest(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		ctrl := gomock.NewController(t)
-
-		store := mockdb.NewMockStore(ctrl)
-		server := SetupRoutes(store)
 		recorder := httptest.NewRecorder()
 
 		testCase.testStubs(store)
@@ -144,6 +153,7 @@ func TestCreateUserControllerTest(t *testing.T) {
 		json.NewEncoder(&bodyBuffer).Encode(testCase.payload)
 
 		request, err := http.NewRequest(http.MethodPost, "/users", &bodyBuffer)
+		request.Header.Set("authorization", fmt.Sprintf("Bearer %v", token))
 		assert.NoError(err)
 
 		server.router.ServeHTTP(recorder, request)

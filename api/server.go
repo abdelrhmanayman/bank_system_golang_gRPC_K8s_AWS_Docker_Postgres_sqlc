@@ -2,6 +2,9 @@ package api
 
 import (
 	db "banksystem/db/sqlc"
+	"banksystem/token"
+	"banksystem/util"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -9,17 +12,33 @@ import (
 )
 
 type Server struct {
-	store  db.Store
-	router *gin.Engine
+	store      db.Store
+	router     *gin.Engine
+	tokenMaker token.Maker
+	appConfig  util.Config
 }
 
-func SetupRoutes(store db.Store) *Server {
+func SetupRoutes(config util.Config, store db.Store) (*Server, error) {
 	server := &Server{store: store}
 	router := gin.Default()
+
+	pMaker, err := token.CreateNewPasetoMaker([]byte(config.SymmetricKey))
+
+	if err != nil {
+		err = fmt.Errorf("can't start token maker %v", err)
+		return nil, err
+	}
+
+	server.tokenMaker = pMaker
+	server.appConfig = config
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("currency", CurrencyValidator)
 	}
+	// Auth Routers
+	router.POST("/auth/login", server.LoginController)
+
+	router.Use(AuthMiddleware(pMaker))
 
 	// Accounts Routers
 	router.POST("/accounts", server.CreateAccountController)
@@ -29,11 +48,11 @@ func SetupRoutes(store db.Store) *Server {
 	// Transfers Routers
 	router.POST("/transfers", server.CreateTransferController)
 
-	//Users Routers
+	// Users Routers
 	router.POST("/users", server.CreateUserController)
 
 	server.router = router
-	return server
+	return server, nil
 
 }
 
