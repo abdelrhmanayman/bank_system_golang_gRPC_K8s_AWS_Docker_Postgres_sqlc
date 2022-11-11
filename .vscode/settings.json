@@ -2,5 +2,8 @@
     "cSpell.words": [
         "banksystem",
         "sslmode"
-    ]
+    ],
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-workflow.json": "file:///Users/abdelrahman/Desktop/Playground/bank_golang/.github/workflows/deploy.yml"
+    }
 }
