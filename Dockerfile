@@ -11,8 +11,6 @@ COPY --from=buildStage /app/main .
 COPY --from=buildStage /app/migrate ./migrate
 COPY db/migration ./migration
 COPY start.sh .
-COPY wait-for.sh .
-
 
 COPY .env .
 ENV GIN_MODE=release

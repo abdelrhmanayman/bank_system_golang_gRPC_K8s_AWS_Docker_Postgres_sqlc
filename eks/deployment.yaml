@@ -1,35 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  bank-api-deployment
+  name: bank-api-deployment
   namespace: default
   labels:
-    app:  bank-api-deployment
+    app: bank-api-deployment
 spec:
   selector:
     matchLabels:
       app: bank-api-deployment
   replicas: 1
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
       labels:
-        app:  bank-api-deployment
+        app: bank-api-deployment
     spec:
       containers:
-      - name:  bank-api-deployment
-        image:  030596717499.dkr.ecr.eu-central-1.amazonaws.com/bank_golang:8c0849103f4983c77242cde8239b3fb486ab29ce
-        resources:
-          requests:
-            cpu: 100m
-            memory: 100Mi
-          limits:
-            cpu: 100m
-            memory: 100Mi
-        ports:
-        - containerPort:  8080
+        - name: bank-api-deployment
+          image: 030596717499.dkr.ecr.eu-central-1.amazonaws.com/bank_golang:29b3881be98a4d5fb90c9b5330758a4d610a1f43
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
+          ports:
+            - containerPort: 8080
       restartPolicy: Always
