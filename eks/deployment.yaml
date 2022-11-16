@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: bank-api-deployment
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: bank-api-deployment
-          image: 030596717499.dkr.ecr.eu-central-1.amazonaws.com/bank_golang:29b3881be98a4d5fb90c9b5330758a4d610a1f43
+          image: 030596717499.dkr.ecr.eu-central-1.amazonaws.com/bank_golang:b468425bd1466d51a5ecac93d9f728efd5055dd0
           resources:
             requests:
               cpu: 100m
