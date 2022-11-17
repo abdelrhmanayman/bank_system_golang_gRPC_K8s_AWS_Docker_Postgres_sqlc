@@ -46,7 +46,7 @@ jobs:
           docker push -a $REGISTRY/$REPOSITORY
 
       - name: Set Kube Config
-        run: aws eks update-kubeconfig --name bank_cluster --region eu-central-1
+        run: aws eks update-kubeconfig --name bank_cluster --region eu-central-1 --role-arn arn:aws:iam::030596717499:role/github_actions
       
       - name: Deploy to EKS cluster
         run: |
