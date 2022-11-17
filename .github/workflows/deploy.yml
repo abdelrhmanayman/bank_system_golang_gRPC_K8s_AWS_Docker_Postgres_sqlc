@@ -42,9 +42,12 @@ jobs:
           REPOSITORY: bank_golang
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t latest .
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
           docker push -a $REGISTRY/$REPOSITORY
 
+      - name: Set Kube Config
+        run: aws eks update-kubeconfig --name bank_cluster --region eu-central-1
+      
       - name: Deploy to EKS cluster
         run: |
           kubectl apply -f eks/aws-auth.yaml
