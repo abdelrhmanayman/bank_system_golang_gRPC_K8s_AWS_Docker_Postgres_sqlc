@@ -35,19 +35,19 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Load Secrets
-        run: aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRETS_NAME }} --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > .env
+        run: aws secretsmanager get-secret-value --secret-id bank_secrets --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > .env
 
       - name: Build, tag, and push docker image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: ${{ secrets.REPO_NAME }}
+          REPOSITORY: bank_golang
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
           docker push -a $REGISTRY/$REPOSITORY
 
       - name: Set Kube Config
-        run: aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region eu-central-1
+        run: aws eks update-kubeconfig --name bank_cluster --region eu-central-1
       
       - name: Deploy to EKS cluster
         run: |
