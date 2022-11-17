@@ -6,13 +6,18 @@ spec:
   controller: k8s.io/ingress-nginx
 
 ---
-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
   name: bank-ingress
   namespace: default
 spec:
+  tls:
+    - hosts:
+        - "api.bankocorp.com"
+      secretName: bank-issuer-account-key
   ingressClassName: nginx
   rules:
     - host: "api.bankocorp.com"
