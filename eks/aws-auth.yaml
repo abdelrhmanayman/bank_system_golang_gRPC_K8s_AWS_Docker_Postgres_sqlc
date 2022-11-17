@@ -7,5 +7,5 @@ data:
   mapUsers: |
     - groups:
       - system:masters
-      userarn: ${{ secrets.KUBE_USER_ARN }}
+      userarn: arn:aws:iam::030596717499:user/local_machine
       username: github_cd
