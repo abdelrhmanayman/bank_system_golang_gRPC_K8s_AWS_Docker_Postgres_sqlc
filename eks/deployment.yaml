@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: bank-api-deployment
-          image: ${{ secrets.SECRETS_NAME }}/${{ secrets.REPO_NAME }}:latest
+          image: 030596717499.dkr.ecr.eu-central-1.amazonaws.com/bank_golang:latest
           imagePullPolicy: Always
           resources:
             requests:
