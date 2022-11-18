@@ -37,6 +37,7 @@ func SetupRoutes(config util.Config, store db.Store) (*Server, error) {
 	}
 	// Auth Routers
 	router.POST("/auth/login", server.LoginController)
+	router.POST("/auth/renew_token", server.RenewTokenController)
 
 	// Users Routers
 	router.POST("/users", server.CreateUserController)

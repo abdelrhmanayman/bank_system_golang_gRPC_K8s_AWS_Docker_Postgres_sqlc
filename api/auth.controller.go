@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type LoginRequest struct {
@@ -17,9 +18,12 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	User           db.User   `json:"user"`
-	Token          string    `json:"token"`
-	TokenExpiresAt time.Time `json:"token_expires_at"`
+	User                  db.User   `json:"user"`
+	Token                 string    `json:"token"`
+	RefreshToken          string    `json:"refreshToken"`
+	TokenExpiresAt        time.Time `json:"token_expires_at"`
+	RefreshTokenExpiresAt time.Time `json:"refresh_token_expires_at"`
+	SessionID             uuid.UUID `json:"session_id"`
 }
 
 var (
@@ -56,7 +60,28 @@ func (server *Server) LoginController(ctx *gin.Context) {
 		return
 	}
 
-	token, payload, err := server.tokenMaker.CreateToken(user.Username, server.appConfig.TokenDuration)
+	accessToken, accessTokenPayload, err := server.tokenMaker.CreateToken(user.Username, server.appConfig.TokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		return
+	}
+
+	refreshToken, refreshTokenPayload, err := server.tokenMaker.CreateToken(user.Username, server.appConfig.RefreshTokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		return
+	}
+
+	session, err := server.store.CreateSession(ctx, db.CreateSessionParams{
+		Username:     user.Username,
+		RefreshToken: refreshToken,
+		UserAgent:    ctx.Request.UserAgent(),
+		ClientIp:     ctx.ClientIP(),
+		ExpiresAt:    refreshTokenPayload.ExpiredAt,
+		IsBlocked:    false,
+		ID:           refreshTokenPayload.ID,
+	})
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
@@ -67,8 +92,11 @@ func (server *Server) LoginController(ctx *gin.Context) {
 			Username: user.Username,
 			Email:    user.Email,
 		},
-		Token:          token,
-		TokenExpiresAt: payload.ExpiredAt,
+		Token:                 accessToken,
+		RefreshToken:          refreshToken,
+		TokenExpiresAt:        accessTokenPayload.ExpiredAt,
+		RefreshTokenExpiresAt: refreshTokenPayload.ExpiredAt,
+		SessionID:             session.ID,
 	})
 
 }
