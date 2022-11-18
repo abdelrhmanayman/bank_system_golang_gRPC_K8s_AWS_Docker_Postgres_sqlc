@@ -38,6 +38,9 @@ func SetupRoutes(config util.Config, store db.Store) (*Server, error) {
 	// Auth Routers
 	router.POST("/auth/login", server.LoginController)
 
+	// Users Routers
+	router.POST("/users", server.CreateUserController)
+
 	router.Use(AuthMiddleware(pMaker))
 
 	// Accounts Routers
@@ -47,9 +50,6 @@ func SetupRoutes(config util.Config, store db.Store) (*Server, error) {
 
 	// Transfers Routers
 	router.POST("/transfers", server.CreateTransferController)
-
-	// Users Routers
-	router.POST("/users", server.CreateUserController)
 
 	server.router = router
 	return server, nil
