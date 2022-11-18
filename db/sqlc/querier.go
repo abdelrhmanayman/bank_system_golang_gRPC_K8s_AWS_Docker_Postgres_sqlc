@@ -6,24 +6,30 @@ package db
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
 	AddMoneyToAccount(ctx context.Context, arg AddMoneyToAccountParams) (Account, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
 	CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error)
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateTransfer(ctx context.Context, arg CreateTransferParams) (Transfer, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAccount(ctx context.Context, id int64) error
 	DeleteEntry(ctx context.Context, id int64) (int64, error)
+	DeleteSession(ctx context.Context, id uuid.UUID) error
 	DeleteTransfer(ctx context.Context, id int64) (int64, error)
 	GetAccount(ctx context.Context, id int64) (Account, error)
 	GetAccountEntries(ctx context.Context, arg GetAccountEntriesParams) ([]Entry, error)
 	GetAccountForUpdate(ctx context.Context, id int64) (Account, error)
+	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	GetTransfer(ctx context.Context, arg GetTransferParams) ([]Transfer, error)
 	GetUser(ctx context.Context, username string) (User, error)
 	ListAccounts(ctx context.Context, arg ListAccountsParams) ([]Account, error)
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
+	UpdateSession(ctx context.Context, arg UpdateSessionParams) (Session, error)
 }
 
 var _ Querier = (*Queries)(nil)
