@@ -12,7 +12,6 @@ spec:
     clientIP:
       timeoutSeconds: 10800
   ports:
-  - name: bank-api-service
-    protocol: TCP
+  - protocol: TCP
     port: 80
     targetPort: 8080
